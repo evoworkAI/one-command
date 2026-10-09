@@ -1,0 +1,566 @@
+<title>像素环游世界提示词</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ─── 设计计划 ─────────────────────────────────────────────
+   配色：纸感底色偏蓝灰，墨色正文，赭金为唯一强调色
+        （取自成品徽章的金色），代码块用深靛蓝作纸中之纸
+   字体：Noto Serif SC 做标题、Noto Sans SC 做正文、
+        JetBrains Mono 承担提示词与指令
+   版式：单栏窄行宽，编号串联真实流程，提示词块为深色内嵌面板
+   ──────────────────────────────────────────────────────── */
+:root{
+  --paper:#f6f5f1;
+  --surface:#ffffff;
+  --ink:#1b2233;
+  --muted:#5f6675;
+  --faint:#8d94a3;
+  --rule:#e2e0d9;
+  --rule-strong:#c9c6bd;
+  --accent:#b07d10;
+  --accent-soft:#f0e4c4;
+  --code-bg:#161d2e;
+  --code-ink:#d8dced;
+  --code-dim:#7e879e;
+  --code-accent:#e8b84b;
+  --teal:#1a6f68;
+  --color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12141c;
+    --surface:#191c26;
+    --ink:#e8e6e0;
+    --muted:#a2a7b5;
+    --faint:#7b8291;
+    --rule:#2a2e3b;
+    --rule-strong:#3b4152;
+    --accent:#e0ab3c;
+    --accent-soft:#2e2614;
+    --code-bg:#0d1119;
+    --code-ink:#d5d9e8;
+    --code-dim:#6d768c;
+    --code-accent:#f0c05a;
+    --teal:#4fb3a8;
+    --color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12141c;
+  --surface:#191c26;
+  --ink:#e8e6e0;
+  --muted:#a2a7b5;
+  --faint:#7b8291;
+  --rule:#2a2e3b;
+  --rule-strong:#3b4152;
+  --accent:#e0ab3c;
+  --accent-soft:#2e2614;
+  --code-bg:#0d1119;
+  --code-ink:#d5d9e8;
+  --code-dim:#6d768c;
+  --code-accent:#f0c05a;
+  --teal:#4fb3a8;
+  --color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:16px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  max-width:760px;
+  margin:0 auto;
+  padding-block:clamp(40px,7vw,80px) 96px;
+  padding-inline:clamp(20px,5vw,32px);
+  display:flex;
+  flex-direction:column;
+  gap:clamp(44px,6vw,64px);
+}
+
+/* ── 页头 ── */
+header{display:flex;flex-direction:column;gap:18px}
+.eyebrow{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:500;
+}
+h1{
+  font-family:"Noto Serif SC",Georgia,serif;
+  font-weight:900;
+  font-size:clamp(30px,5.4vw,44px);
+  line-height:1.24;
+  letter-spacing:-.01em;
+  margin:0;
+  text-wrap:balance;
+}
+.lede{
+  font-size:clamp(16px,2.2vw,17.5px);
+  color:var(--muted);
+  margin:0;
+  max-width:60ch;
+}
+.meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 20px;
+  padding-top:14px;
+  border-top:1px solid var(--rule);
+  font-size:13.5px;
+  color:var(--muted);
+}
+.meta span{display:flex;align-items:center;gap:7px}
+.meta b{color:var(--ink);font-weight:700}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+
+/* ── 区块 ── */
+section{display:flex;flex-direction:column;gap:20px}
+h2{
+  font-family:"Noto Serif SC",Georgia,serif;
+  font-weight:700;
+  font-size:clamp(21px,3vw,26px);
+  line-height:1.35;
+  margin:0;
+  letter-spacing:-.005em;
+}
+h3{
+  font-size:16px;
+  font-weight:700;
+  margin:0;
+  letter-spacing:.01em;
+}
+p{margin:0;max-width:66ch}
+strong{font-weight:700;color:var(--ink)}
+.soft{color:var(--muted)}
+a{color:var(--teal);text-decoration-thickness:1px;text-underline-offset:3px}
+
+/* ── 提示词面板 ── */
+.prompt{
+  background:var(--code-bg);
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid var(--rule);
+}
+.prompt-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 14px 11px 18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.prompt-title{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--code-dim);
+}
+.copy{
+  font-family:"Noto Sans SC",sans-serif;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--code-accent);
+  background:rgba(240,192,90,.1);
+  border:1px solid rgba(240,192,90,.32);
+  border-radius:7px;
+  padding:5px 13px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s;
+}
+.copy:hover{background:rgba(240,192,90,.2)}
+.copy:focus-visible{outline:2px solid var(--code-accent);outline-offset:2px}
+.copy.done{color:#7fd8a0;border-color:rgba(127,216,160,.4);background:rgba(127,216,160,.12)}
+pre{
+  margin:0;
+  padding:20px;
+  overflow-x:auto;
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:12.8px;
+  line-height:1.85;
+  color:var(--code-ink);
+  tab-size:2;
+}
+pre::-webkit-scrollbar{height:8px}
+pre::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:4px}
+.k{color:var(--code-accent)}
+.c{color:var(--code-dim)}
+
+/* ── 清单 ── */
+.checklist{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.checklist li{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:14px;
+  align-items:start;
+  padding:14px 0;
+  border-bottom:1px solid var(--rule);
+}
+.checklist li:first-child{border-top:1px solid var(--rule)}
+.num{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:12px;
+  font-weight:500;
+  color:var(--accent);
+  padding-top:3px;
+  min-width:22px;
+}
+.checklist .body{display:flex;flex-direction:column;gap:3px}
+.checklist .note{font-size:14px;color:var(--muted);line-height:1.65}
+
+/* ── 流程步骤 ── */
+.steps{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  counter-reset:step;
+}
+.step{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:16px;
+  padding:20px 0;
+  border-bottom:1px solid var(--rule);
+}
+.step:first-child{border-top:1px solid var(--rule)}
+.step-n{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:12px;
+  font-weight:500;
+  color:var(--surface);
+  background:var(--accent);
+  width:24px;height:24px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex:none;
+  margin-top:2px;
+}
+.step-body{display:flex;flex-direction:column;gap:7px;min-width:0}
+.step-body p{font-size:15px;color:var(--muted)}
+.step-body code{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:12.5px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  padding:2px 6px;
+  border-radius:4px;
+  white-space:nowrap;
+}
+
+/* ── 提示条 ── */
+.tip{
+  border-left:3px solid var(--accent);
+  background:var(--accent-soft);
+  padding:14px 18px;
+  border-radius:0 10px 10px 0;
+  font-size:14.5px;
+  line-height:1.7;
+  color:var(--ink);
+}
+.tip b{color:var(--accent)}
+
+/* ── 两栏对照 ── */
+.two{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:14px;
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:12px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+.card h3{font-size:15px}
+.card p{font-size:14px;color:var(--muted);line-height:1.68}
+.card .tag{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--faint);
+}
+
+/* ── 结尾 ── */
+footer{
+  border-top:1px solid var(--rule);
+  padding-top:26px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  font-size:14px;
+  color:var(--muted);
+}
+footer p{max-width:62ch}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media (max-width:430px){
+  pre{font-size:11.6px;padding:16px}
+  .checklist li,.step{gap:12px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Prompt · 复制即用</div>
+  <h1>像素环游世界视频<br>一站式提示词</h1>
+  <p class="lede">把下面两段话复制给 AI，它就会做一个能玩的像素风旅行短片：角色走进每个地标、遇到宝可梦、弹出选项、你点一下、特效炸开。你只需要准备主题和几张图。</p>
+  <div class="meta">
+    <span><i class="dot"></i>成品：单个 HTML 文件，双击就能看</span>
+    <span><i class="dot"></i>产出时长：约 1 小时</span>
+    <span><i class="dot"></i>无需编程基础</span>
+  </div>
+</header>
+
+<section>
+  <h2>先想清楚这三件事</h2>
+  <p>提示词里留了空，你填完再发。想不清楚也没关系，先按示例填着，AI 会跟着你的方向走。</p>
+  <ul class="checklist">
+    <li>
+      <span class="num">01</span>
+      <span class="body">
+        <h3>主题是什么</h3>
+        <span class="note">环游世界？打卡某座城市？公司产品巡礼？决定后面所有内容的走向。</span>
+      </span>
+    </li>
+    <li>
+      <span class="num">02</span>
+      <span class="body">
+        <h3>四个地标</h3>
+        <span class="note">每个地标要有一个辨识度极高的建筑，让 AI 生图时不会画歪。比如北京用大裤衩、纽约用自由女神。</span>
+      </span>
+    </li>
+    <li>
+      <span class="num">03</span>
+      <span class="body">
+        <h3>在每个地标做什么</h3>
+        <span class="note">这是片子的灵魂。别写"参观景点"，写具体的动作：吃烤鸭、喝豆汁、看日出。越具体越好笑。</span>
+      </span>
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>第一段：让 AI 搭好骨架</h2>
+  <p>先把这段发出去。它会让 AI 确认需求、列出还需要你提供什么，不会直接动手。</p>
+
+  <div class="prompt">
+    <div class="prompt-bar">
+      <span class="prompt-title">Prompt 1 / 需求确认</span>
+      <button class="copy" data-target="p1">复制</button>
+    </div>
+<pre id="p1">我想做一个"像素风游戏"互动网页，模仿 GBA 宝可梦的横版画面。
+
+【主题】宝可梦·环游世界
+
+【四个地点】
+1. 北京 —— 大裤衩（CCTV总部大楼）
+2. 纽约 —— 自由女神像
+3. 巴黎 —— 埃菲尔铁塔
+4. 东京 —— 富士山
+
+【每个地点的流程】
+玩家角色从左边走进场景 → 弹出感叹号 → 白闪过渡 →
+一只宝可梦从右上角落下 → 左上角出现名字牌和血条 →
+屏幕下方出现对话文字 → 右下角弹出四个选项 →
+玩家点选一个 → 攻击特效炸开 + 画面震动 → 过渡到下一个地点
+
+【每个地点的四个选项】（每个都很具体，不要写成"参观景点"）
+北京：拍大裤衩 / 吃烤鸭 / 喝豆汁 / 看日出
+纽约：拍女神 / 吃热狗 / 打黄的 / 逛中央公园
+巴黎：看铁塔 / 喝咖啡 / 买面包 / 游塞纳河
+东京：爬富士山 / 吃拉面 / 泡温泉 / 看樱花
+
+【开头和结尾】
+开头：一张像素风拼贴图，四个地标并排，一个"开始旅程"按钮
+结尾：通关字幕"旅程圆满完成"，然后一张结尾图 + "再来一次"按钮
+
+【其他要求】
+- 全程自动循环播放，播完回到开头
+- 右上角有静音开关
+- 有 8bit 游戏音效：遭遇、选择、攻击、收集
+- 有背景音乐，循环播放
+
+请先不要写代码。告诉我：
+1. 你理解的需求对不对
+2. 我需要提供哪些素材，每样素材的尺寸和格式要求
+3. 用什么工具生成这些素材，给我可用的生图提示词</pre>
+  </div>
+
+  <div class="tip">
+    <b>关键点：</b>最后那句"请先不要写代码"很重要。先让 AI 把素材清单列清楚，你才知道要准备什么，避免它自己乱画背景。
+  </div>
+</section>
+
+<section>
+  <h2>第二段：素材齐了，让它开工</h2>
+  <p>按 AI 给的清单准备好图片和音乐，全部放进一个文件夹，然后把文件名连同这段一起发出去。</p>
+
+  <div class="prompt">
+    <div class="prompt-bar">
+      <span class="prompt-title">Prompt 2 / 开始制作</span>
+      <button class="copy" data-target="p2">复制</button>
+    </div>
+<pre id="p2">素材已备好，放在 <span class="k">[你的文件夹路径]</span>：
+
+- 四张背景图：<span class="k">01beijing.png / 02usa.png / 03paris.png / 04japan.png</span>
+- 角色走路帧：<span class="k">a01.png ~ a07.png</span>
+- 开场图：<span class="k">start.png</span>
+- 结尾图：<span class="k">final.png</span>
+- 背景音乐：<span class="k">musicbg.mp3</span>
+
+现在开始制作，要求：
+
+【技术】
+- 输出单个 HTML 文件，所有素材用 Base64 内嵌，不依赖任何外部文件
+- 横版 4:3 舞台，宽 720px 高 540px，居中显示
+- 不用任何外部库，纯原生 HTML + CSS + JavaScript
+
+【画面】
+- 背景图等比缩放到高度 540px，角色走动时背景缓慢向左滚动
+- 主角用 <span class="k">a01~a07</span> 七帧轮播做走路动画，每帧停 120 毫秒
+- 宝可梦精灵图用 PokéAPI gen3 的官方素材，尺寸放大到 288px
+
+【音效】
+- 用 Web Audio API 现场合成 8bit 音效，不要依赖音频文件
+- 遭遇、选择、攻击、收集 各一个音效
+- 背景音乐用 <span class="k">musicbg.mp3</span> 循环播放
+- 右上角加静音开关
+- 注意：浏览器要求用户先点击一次才能播放声音，要处理好
+
+【交互】
+- 开场"开始旅程"按钮可点击
+- 四个选项都能点击，鼠标悬停有反馈
+- 玩家不点的话，3 秒后自动选默认项
+- 结尾"再来一次"按钮点击后重新开始
+
+做完之后自己检查一遍，把可能有问题的地方告诉我。</pre>
+  </div>
+</section>
+
+<section>
+  <h2>之后是来回调整</h2>
+  <p>第一版一定不会完美。这很正常，做这个项目我调了十几轮。下面是最常遇到的几类问题，直接对着描述就行。</p>
+
+  <div class="two">
+    <div class="card">
+      <span class="tag">位置问题</span>
+      <h3>元素跑到画面外面了</h3>
+      <p>"主角现在完全看不见，你查一下层级和定位。""攻击特效的中心点应该在宝可梦身上，不是画面中央。"</p>
+    </div>
+    <div class="card">
+      <span class="tag">尺寸问题</span>
+      <h3>某个东西太大或太小</h3>
+      <p>直接说倍数："怪物放大 3 倍""选项框和文字等比例放大 1.5 倍"。说倍数比说像素好懂，AI 也能算准。</p>
+    </div>
+    <div class="card">
+      <span class="tag">节奏问题</span>
+      <h3>太快或太慢</h3>
+      <p>"背景滚动慢一点，现在能看出重复了""走路时间从 2.4 秒改成 3 秒"。</p>
+    </div>
+    <div class="card">
+      <span class="tag">氛围问题</span>
+      <h3>不够爽</h3>
+      <p>"攻击效果华丽一点，现在只有一个很小的飞溅。""打中的时候怪物、对话框、背景都要震一下。"</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <b>提问题的小技巧：</b>说清楚"你改了什么"和"我看到了什么"。比如"你刚改了按钮居中，现在它歪到左边了"，比"按钮不对"有用得多。如果改坏了，直接说"改回上一次"，AI 会撤回。
+  </div>
+</section>
+
+<section>
+  <h2>想让片子更长或更短</h2>
+  <ul class="checklist">
+    <li>
+      <span class="num">01</span>
+      <span class="body">
+        <h3>加地点</h3>
+        <span class="note">把新地标、宝可梦、四个选项按同样格式加进列表，再让它重新生成。代码是数据驱动的，加一个地点很便宜。</span>
+      </span>
+    </li>
+    <li>
+      <span class="num">02</span>
+      <span class="body">
+        <h3>换主题</h3>
+        <span class="note">把"环游世界"换成"我的履历"就是个人简历短片；换成"公司产品线"就是产品宣传片。结构完全一样。</span>
+      </span>
+    </li>
+    <li>
+      <span class="num">03</span>
+      <span class="body">
+        <h3>做成竖版发抖音</h3>
+        <span class="note">让它把舞台改成 405×720（9:16），元素位置重新排一遍。横版和竖版不能直接缩放，布局要重做。</span>
+      </span>
+    </li>
+    <li>
+      <span class="num">04</span>
+      <span class="body">
+        <h3>导出成视频文件</h3>
+        <span class="note">网页是能互动的，但发到平台需要 mp4。让它用 Playwright 录屏，或者直接用系统录屏软件录一遍。</span>
+      </span>
+    </li>
+  </ul>
+</section>
+
+<footer>
+  <p>这份提示词是从一个真实项目里总结的。整个制作过程踩过的坑、用到的每个技巧，都在配套的《像素风游戏动画工作流》里，需要的话可以找我要。</p>
+  <p>做出来的成品是单个 HTML 文件，可以直接发微信、发群，对方双击就能打开，不用装任何东西。</p>
+</footer>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var pre = document.getElementById(btn.dataset.target);
+    var text = pre.innerText;
+    var done = function(){
+      btn.textContent = '已复制';
+      btn.classList.add('done');
+      setTimeout(function(){
+        btn.textContent = '复制';
+        btn.classList.remove('done');
+      }, 1800);
+    };
+    try {
+      navigator.clipboard.writeText(text).then(done).catch(function(){ fallback(pre, btn); });
+    } catch(e) {
+      fallback(pre, btn);
+    }
+  });
+});
+function fallback(pre, btn){
+  var range = document.createRange();
+  range.selectNodeContents(pre);
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  btn.textContent = '按 Ctrl+C';
+  setTimeout(function(){ btn.textContent = '复制'; }, 2600);
+}
+</script>

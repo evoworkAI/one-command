@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8" />
+<title>AI 動態簡歷視頻 · 一站式提示詞</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --paper: #f6f5f1;
+  --surface: #ffffff;
+  --ink: #1b2233;
+  --muted: #5f6675;
+  --faint: #8d94a3;
+  --rule: #e2e0d9;
+  --rule-strong: #c9c6bd;
+  --accent: #0e7a6b;
+  --accent-soft: #d4eeea;
+  --code-bg: #141b2d;
+  --code-ink: #d8dced;
+  --code-dim: #7e879e;
+  --code-accent: #4bcfb5;
+  --teal: #0e7a6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #111419;
+    --surface: #181c25;
+    --ink: #e4e2db;
+    --muted: #9fa5b4;
+    --faint: #6e7585;
+    --rule: #262b38;
+    --rule-strong: #343a4a;
+    --accent: #3ecfb8;
+    --accent-soft: #0e2924;
+    --code-bg: #0b1120;
+    --code-ink: #d5d9e8;
+    --code-dim: #6d768c;
+    --code-accent: #4bcfb5;
+    --teal: #3ecfb8;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Noto Sans SC", -apple-system, "PingFang SC", sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding-block: clamp(40px, 7vw, 80px) 96px;
+  padding-inline: clamp(20px, 5vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(44px, 6vw, 64px);
+}
+
+/* ── 页头 ── */
+header { display: flex; flex-direction: column; gap: 18px; }
+.eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+}
+h1 {
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(30px, 5.4vw, 44px);
+  line-height: 1.24;
+  letter-spacing: -.01em;
+  margin: 0;
+}
+.lede {
+  font-size: clamp(15px, 2.2vw, 17px);
+  color: var(--muted);
+  margin: 0;
+  max-width: 60ch;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.meta span { display: flex; align-items: center; gap: 7px; }
+.meta b { color: var(--ink); font-weight: 700; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+
+/* ── 通用区块 ── */
+section { display: flex; flex-direction: column; gap: 20px; }
+h2 {
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(21px, 3vw, 26px);
+  line-height: 1.35;
+  margin: 0;
+}
+h3 { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: .01em; }
+p { margin: 0; max-width: 66ch; }
+strong { font-weight: 700; color: var(--ink); }
+.soft { color: var(--muted); }
+a { color: var(--teal); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+/* ── 提示词面板 ── */
+.prompt {
+  background: var(--code-bg);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+}
+.prompt-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px 11px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.prompt-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--code-dim);
+}
+.copy {
+  font-family: "Noto Sans SC", sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--code-accent);
+  background: rgba(75,207,181,.08);
+  border: 1px solid rgba(75,207,181,.28);
+  border-radius: 7px;
+  padding: 5px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.copy:hover { background: rgba(75,207,181,.18); }
+.copy.done { color: #7fd8a0; border-color: rgba(127,216,160,.4); background: rgba(127,216,160,.1); }
+pre {
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12.8px;
+  line-height: 1.85;
+  color: var(--code-ink);
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+pre::-webkit-scrollbar { height: 8px; }
+pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+.k { color: var(--code-accent); }
+.c { color: var(--code-dim); }
+.v { color: #a8d4ff; }
+.s { color: #f0c580; }
+
+/* ── 场景卡片 ── */
+.scenes {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.scene-row {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  border-bottom: 1px solid var(--rule);
+}
+.scene-row:last-child { border-bottom: none; }
+.scene-time {
+  padding: 16px 16px;
+  background: var(--surface);
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 4px;
+}
+.scene-ts {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+.scene-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scene-name {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+.scene-desc {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── 步骤列表 ── */
+.steps { display: flex; flex-direction: column; gap: 0; counter-reset: step; }
+.step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.step:first-child { border-top: 1px solid var(--rule); }
+.step-num {
+  counter-increment: step;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  padding-top: 3px;
+  min-width: 22px;
+}
+.step-body { display: flex; flex-direction: column; gap: 4px; }
+.step-title { font-weight: 700; font-size: 15px; color: var(--ink); }
+.step-note { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+/* ── 字段填写块 ── */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+}
+.field-row:last-child { border-bottom: none; }
+.field-key {
+  padding: 13px 16px;
+  background: var(--surface);
+  border-right: 1px solid var(--rule);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 14px;
+}
+.field-val {
+  padding: 13px 16px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.field-val span { color: var(--muted); font-size: 13px; }
+
+/* ── 提示注记 ── */
+.note-box {
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.65;
+  display: flex;
+  gap: 12px;
+}
+.note-icon { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+
+/* ── 标签 ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-family: "JetBrains Mono", monospace;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-weight: 500;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
+}
+
+@media (max-width: 480px) {
+  .field-row { grid-template-columns: 1fr; }
+  .field-key { border-right: none; border-bottom: 1px solid var(--rule); }
+  .scene-row { grid-template-columns: 1fr; }
+  .scene-time { border-right: none; border-bottom: 1px solid var(--rule); flex-direction: row; gap: 8px; align-items: center; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">一站式提示詞 · AI 視頻製作</div>
+    <h1>用 AI 把你的簡歷<br>做成炫酷動態視頻</h1>
+    <p class="lede">把提示詞複製給 Claude，填入你的簡歷信息，AI 會自動生成一個帶 WebGL 粒子光效背景 + 流體鼠標特效的動態展示網頁，直接瀏覽器打開就能播放。</p>
+    <div class="meta">
+      <span><span class="dot"></span>輸出：單個 HTML 文件</span>
+      <span><span class="dot"></span>時長：約 27 秒</span>
+      <span><span class="dot"></span>依賴：純瀏覽器，無需安裝</span>
+      <span><span class="dot"></span>支持：加入本地 BGM</span>
+    </div>
+  </header>
+
+  <!-- 效果预览 -->
+  <section>
+    <h2>視頻效果預覽</h2>
+    <p class="soft">共 6 個場景，依次展示你的個人品牌、技能、數字成果、代表項目和 Slogan。</p>
+    <div class="scenes">
+      <div class="scene-row">
+        <div class="scene-time"><span class="scene-ts">0–5s</span></div>
+        <div class="scene-body">
+          <div class="scene-name">名字大字開場</div>
+          <div class="scene-desc">姓名從下方彈入，細線拉開，職位副標題逐字浮現。背景持續的 WebGL 稜鏡光效。</div>
+        </div>
+      </div>
+      <div class="scene-row">
+        <div class="scene-time"><span class="scene-ts">5–9s</span></div>
+        <div class="scene-body">
+          <div class="scene-name">技能三行入場</div>
+          <div class="scene-desc">核心技能詞逐行依次浮現，帶青藍色強調色。</div>
+        </div>
+      </div>
+      <div class="scene-row">
+        <div class="scene-time"><span class="scene-ts">9–18s</span></div>
+        <div class="scene-body">
+          <div class="scene-name">三個關鍵數字</div>
+          <div class="scene-desc">每個數字獨佔全屏3秒，巨大字體衝入，配眉標和說明文字，分別用綠/金/青三色。</div>
+        </div>
+      </div>
+      <div class="scene-row">
+        <div class="scene-time"><span class="scene-ts">18–23s</span></div>
+        <div class="scene-body">
+          <div class="scene-name">三個代表項目</div>
+          <div class="scene-desc">行式排版，編號 + 名稱 + 一行描述 + 金額/狀態，從右側依次滑入。</div>
+        </div>
+      </div>
+      <div class="scene-row">
+        <div class="scene-time"><span class="scene-ts">23–27s</span></div>
+        <div class="scene-body">
+          <div class="scene-name">收尾 Slogan</div>
+          <div class="scene-desc">姓名再次浮現，Slogan 淡入，最後輕微發光脈動收束。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 填写你的信息 -->
+  <section>
+    <h2>第一步：填寫你的信息</h2>
+    <p>把下表中的示例值替換成你自己的信息，稍後粘貼到提示詞中。</p>
+    <div class="fields">
+      <div class="field-row">
+        <div class="field-key">姓名</div>
+        <div class="field-val">靜電 <span>（中文或英文均可）</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">職位</div>
+        <div class="field-val">AI產品經理 / 產品總監</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">年資</div>
+        <div class="field-val">18年</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">技能行 1</div>
+        <div class="field-val">Agent · RAG · GraphRAG <span>（青藍色強調）</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">技能行 2</div>
+        <div class="field-val">Text2SQL · 上下文工程</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">技能行 3</div>
+        <div class="field-val">從0到1 · ToB/ToC · 現場交付 <span>（暗色）</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">數字 1</div>
+        <div class="field-val">68%→91% ｜ 工單分類準確率 ｜ 政務AI · 百萬級工單</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">數字 2</div>
+        <div class="field-val">¥800萬+ ｜ 重點項目合同 ｜ 消費醫療AI</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">數字 3</div>
+        <div class="field-val">2萬+ ｜ AI私域服務規模 ｜ 7×24h · 全天候</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">項目 1</div>
+        <div class="field-val">青衿 ｜ 企業對話智能體 · 消費醫療全鏈路 ｜ ¥80萬</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">項目 2</div>
+        <div class="field-val">民聲辦 ｜ 政務工單助手 · RAG+小模型 ｜ ¥200萬/年</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">項目 3</div>
+        <div class="field-val">案頭 ｜ 桌面工作智能體 · 非技術用戶 ｜ 自研中</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">Slogan</div>
+        <div class="field-val">不只是想法 · 更是能落地的產品</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">城市</div>
+        <div class="field-val">杭州</div>
+      </div>
+      <div class="field-row">
+        <div class="field-key">BGM 文件名</div>
+        <div class="field-val">科技bgm.mp3 <span>（可選，與 HTML 放同一文件夾）</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主提示词 -->
+  <section>
+    <h2>第二步：複製提示詞</h2>
+    <p>把下方完整提示詞複製給 Claude，將「我的信息」部分替換成你自己的數據。</p>
+    <div class="prompt">
+      <div class="prompt-bar">
+        <span class="prompt-title">完整提示詞 · 複製整段</span>
+        <button class="copy" onclick="copyPrompt(this)">複製</button>
+      </div>
+      <pre id="main-prompt"><span class="c">// 把下方「我的信息」部分替換成你的簡歷數據，然後把整段發給 Claude</span>
+
+<span class="k">請幫我製作一個炫酷的動態簡歷展示網頁（單個 HTML 文件）。</span>
+
+<span class="c">【技術要求】</span>
+- 全屏背景使用 WebGL Ray Marching 體積光線效果（Prismatic Burst 風格）
+  核心：44步體積光線行進，GPU逐像素計算，mat3旋轉+有機扭曲
+- 鼠標移動時顯示流體動力學特效（Navier-Stokes 流體模擬）
+  鼠標移動產生彩色流體漩渦，點擊噴射更強烈的流體
+- GSAP 文字動畫：所有字母用純 2D 動畫（y + scale + opacity）
+  不要用 rotationX，不要用 CSS 3D transform
+- 每個場景用 display:none / display:flex 控制，確保場景之間絕對不疊加
+- 全部寫在一個 HTML 文件，不依賴外部資源（字體除外）
+
+<span class="c">【頁面結構】</span>
+開場：全黑啟動畫面，中間「▶ START」按鈕，點擊後：
+  1. 啟動畫面淡出消失
+  2. WebGL 背景光效開始
+  3. 流體鼠標特效激活
+  4. 如果提供了 BGM 文件名，同時播放背景音樂
+  5. 按順序自動播放以下場景
+
+<span class="c">【場景時序】</span>
+場景1（0–5s）：姓名大字從下方彈入（scale 0.6→1 + y偏移），
+              細線橫向拉開，職位副標題逐字浮現，最後整體淡出
+場景2（5–9s）：技能三行依次從下方淡入，最後整體淡出
+場景3（9–12s）：數字一佔全屏（小標題 → 超大數字 → 說明文字），淡出
+場景4（12–15s）：數字二佔全屏，同上結構，淡出
+場景5（15–18s）：數字三佔全屏，同上結構，淡出
+場景6（18–23s）：三個項目行式排版依次從右側滑入
+場景7（23–27s）：姓名再次浮現 + Slogan + 副標題，最後輕微發光脈動
+
+<span class="c">【我的信息 — 替換這部分】</span>
+姓名：<span class="v">靜電</span>
+英文名/拼音：<span class="v">JING DIAN</span>
+職位：<span class="v">AI產品經理 / 產品總監</span>
+年資：<span class="v">18年</span>
+
+技能行1（青藍色）：<span class="v">Agent · RAG · GraphRAG</span>
+技能行2（白色）：<span class="v">Text2SQL · 上下文工程</span>
+技能行3（灰色）：<span class="v">從0到1 · ToB/ToC · 現場交付</span>
+
+數字1：<span class="v">68%→91%</span>
+數字1眉標：<span class="v">工單分類準確率</span>
+數字1說明：<span class="v">政務AI · 民聲辦 · 百萬級工單</span>
+
+數字2：<span class="v">¥800萬+</span>
+數字2眉標：<span class="v">重點項目合同規模</span>
+數字2說明：<span class="v">消費醫療AI · 青衿智能體</span>
+
+數字3：<span class="v">2萬+</span>
+數字3眉標：<span class="v">AI私域服務規模</span>
+數字3說明：<span class="v">1000+ 微信群 · 7×24h</span>
+
+項目1名稱：<span class="v">青衿</span>
+項目1描述：<span class="v">企業對話智能體 · 40+ Skills · 消費醫療全鏈路</span>
+項目1金額：<span class="v">¥80萬</span>
+
+項目2名稱：<span class="v">民聲辦</span>
+項目2描述：<span class="v">政務工單助手 · 百萬級訓練 · RAG+小模型</span>
+項目2金額：<span class="v">¥200萬/年</span>
+
+項目3名稱：<span class="v">案頭</span>
+項目3描述：<span class="v">桌面工作智能體 · 非技術用戶 · 零端口</span>
+項目3金額：<span class="v">自研中</span>
+
+Slogan：<span class="v">不只是想法 · 更是能落地的產品</span>
+副標題：<span class="v">AI PRODUCT MANAGER · 18 YEARS · HANGZHOU</span>
+BGM文件名：<span class="v">科技bgm.mp3</span>（沒有就寫「無」）
+
+<span class="c">【視覺風格】</span>
+- 背景純黑 #000
+- 主文字：白色
+- 強調色：oklch(80% 0.22 195)（青藍色）
+- 數字顏色：數字1用綠色，數字2用金色，數字3用青藍色
+- 字體：Arial Black 加粗，中文用系統黑體
+- 右下角有「↺ REPLAY」按鈕可重播，重播時音樂也從頭開始
+
+<span class="k">請直接輸出完整的 HTML 文件代碼，不要分段，一次給完。</span></pre>
+    </div>
+  </section>
+
+  <!-- 使用步骤 -->
+  <section>
+    <h2>第三步：操作流程</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">替換信息</div>
+          <div class="step-note">把提示詞裡「我的信息」部分的藍色示例值，逐條替換成你自己的簡歷數據。每條一行，格式保持不變。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">發給 Claude</div>
+          <div class="step-note">把整段提示詞複製到 Claude 的對話框發送。Claude 會輸出一段完整的 HTML 代碼。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">保存為 HTML 文件</div>
+          <div class="step-note">把 Claude 輸出的代碼全部複製，新建一個文本文件，粘貼進去，保存為 <code style="font-family:monospace;background:var(--accent-soft);padding:1px 6px;border-radius:4px;font-size:13px;">resume.html</code>。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">（可選）放入 BGM</div>
+          <div class="step-note">把你的背景音樂 .mp3 文件和 resume.html 放在同一個文件夾裡，文件名要和提示詞裡填的一致。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">瀏覽器打開</div>
+          <div class="step-note">雙擊 resume.html，用 Chrome 或 Safari 打開。點擊中間的「▶ START」按鈕，動畫和音樂同時開始。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 注意事项 -->
+  <section>
+    <h2>注意事項</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="note-box">
+        <div class="note-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="currentColor"/></svg>
+        </div>
+        <div>瀏覽器必須支持 WebGL（Chrome、Safari、Edge 均可）。移動端效果正常，但流體特效性能較高，建議桌面端展示。</div>
+      </div>
+      <div class="note-box">
+        <div class="note-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="currentColor"/></svg>
+        </div>
+        <div>音樂只能在點擊「START」按鈕後播放，瀏覽器不允許頁面自動播放聲音，這是正常的。</div>
+      </div>
+      <div class="note-box">
+        <div class="note-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.5" r="1" fill="currentColor"/></svg>
+        </div>
+        <div>如果 Claude 輸出的效果不對（場景疊加、文字壓扁），直接說「場景有重疊，請修復」或「文字被壓扁了」，Claude 會定位問題修復。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 常见问题 -->
+  <section>
+    <h2>常見問題</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="color:var(--muted);">Q</div>
+        <div class="step-body">
+          <div class="step-title">可以改顏色風格嗎？</div>
+          <div class="step-note">可以。在提示詞最後補充一句，例如「強調色改為紫色，數字全部用金色」，Claude 會按你的要求調整。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--muted);">Q</div>
+        <div class="step-body">
+          <div class="step-title">可以添加更多場景嗎？</div>
+          <div class="step-note">可以。在「場景時序」部分補充新場景的時間和內容描述，比如「加一個工作經歷場景，在項目之後」。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--muted);">Q</div>
+        <div class="step-body">
+          <div class="step-title">如何導出為視頻文件？</div>
+          <div class="step-note">這份提示詞輸出的是網頁版，可以直接錄屏。如果需要自動渲染成 MP4，需要另外用 HyperFrames 工具，那個流程更複雜。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--muted);">Q</div>
+        <div class="step-body">
+          <div class="step-title">繁體中文還是簡體中文？</div>
+          <div class="step-note">默認跟你輸入的語言走。如果你在信息裡用繁體，輸出就是繁體；想指定的話在提示詞最後加「文字全部用繁體中文」。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function copyPrompt(btn) {
+  const pre = document.getElementById('main-prompt');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已複製 ✓';
+    btn.classList.add('done');
+    setTimeout(() => {
+      btn.textContent = '複製';
+      btn.classList.remove('done');
+    }, 2000);
+  }).catch(() => {
+    // fallback
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(pre);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    btn.textContent = '已複製 ✓';
+    btn.classList.add('done');
+    setTimeout(() => {
+      btn.textContent = '複製';
+      btn.classList.remove('done');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
